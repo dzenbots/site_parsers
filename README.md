@@ -1,1 +1,5 @@
-# site_parsers
+# Парсеры сайтов с табачкой
+
+### Сайты, которые обрабатываются парсерами
+
+- [SmolandShop](https://smolandshop.com/)
