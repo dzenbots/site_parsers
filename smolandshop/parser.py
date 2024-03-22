@@ -28,7 +28,6 @@ def parse_url(url: str):
             file.write(html)
             parser = BeautifulSoup(html, "lxml")
             rezult = parser.find("div", {"class": "shop-block-categories"}).find_all("div", {"class": "h2"})
-            print(len(rezult))
             for item in rezult:
                 inner = item.find("a")
                 print(f"{inner.text} --- {inner['href']}")
