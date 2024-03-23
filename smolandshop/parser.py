@@ -28,7 +28,6 @@ def process_brand(brand_name: str, brand_link: str):
         last_page = pages.find_all("li")[-2]
         try:
             last_page_text = last_page.find("a").text
-            # print(last_page_text)
             if last_page_text == "...":
                 last_page_number = int(last_page.find("a")["title"].split(" ")[-1])
             else:
