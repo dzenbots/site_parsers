@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from requests import Session
+from tqdm import tqdm
 
 base_url = "https://smolandshop.com/shop/tabak/"
 
@@ -36,24 +37,24 @@ def process_brand(brand_name: str, brand_link: str):
             last_page_number = 0
     except:
         last_page_number = 0
-    print(last_page_number)
+    # print(last_page_number)
 
 
 def parse_url(url: str):
     try:
         html = get_html(url)
-        with open('test.html', 'w') as file:
-            file.write(html)
-            parser = BeautifulSoup(html, "lxml")
-            categories = parser.find("div", {"class": "shop-block-categories"}).find_all("div", {"class": "h2"})
-            for category in categories:
-                inner = category.find("a")
-                tabaco_brand_name = inner.text.rstrip(" для кальяна")[6:]
-                tabaco_brand_link = inner['href']
-                process_brand(brand_name=tabaco_brand_name, brand_link=tabaco_brand_link)
-                print(f"{tabaco_brand_name} --- {tabaco_brand_link}")
-                #
-
+        # with open('test.html', 'w') as file:
+        #     file.write(html)
+        parser = BeautifulSoup(html, "lxml")
+        categories = parser.find("div", {"class": "shop-block-categories"}).find_all("div", {"class": "h2"})
+        # for category in categories:
+        for i in tqdm(range(0, len(categories)), desc=url):
+            category = categories[i]
+            inner = category.find("a")
+            tabaco_brand_name = inner.text.rstrip(" для кальяна")[6:]
+            tabaco_brand_link = inner['href']
+            process_brand(brand_name=tabaco_brand_name, brand_link=tabaco_brand_link)
+            # print(f"{tabaco_brand_name} --- {tabaco_brand_link}")
     except Exception as e:
         raise e
 
