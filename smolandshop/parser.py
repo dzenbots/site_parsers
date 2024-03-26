@@ -81,7 +81,7 @@ def process_brand(shop: Shop, brand: TabacoBrand, brand_link: str):
 
 def parse_url(url: str):
     shop, created = Shop.get_or_create(
-        shop_name="smolandshop",
+        shop_name="SmolandShop",
         shop_link="https://smolandshop.com/shop/tabak/"
     )
     try:
@@ -93,7 +93,7 @@ def parse_url(url: str):
         categories = parser.find("div", {"class": "shop-block-categories"}).find_all("div", {"class": "h2"})
     except Exception as e:
         raise e
-    for i in tqdm(range(0, len(categories)), desc=url):
+    for i in tqdm(range(0, len(categories)), desc=shop.shop_name):
         category = categories[i]
         try:
             inner = category.find("a")
@@ -113,7 +113,7 @@ def parse_url(url: str):
             brand=brand,
             brand_link=tabaco_brand_link
         )
-        # print(f"{tabaco_brand_name} --- {tabaco_brand_link}")
+        print(f"{tabaco_brand_name} --- {tabaco_brand_link}")
 
 
 if __name__ == "__main__":
