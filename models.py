@@ -25,7 +25,22 @@ class TabacoBrandAndShop(BaseModel):
 class Tabaco(BaseModel):
     tabaco_name = CharField(default='')
     tabaco_brand = ForeignKeyField(TabacoBrand, backref='tabacos')
-    ...
+    country = CharField(default='')
+    taste = CharField(default='')
+    weight = CharField(default='')
+    krepost = CharField(default='')
+    cenovoy_segment = CharField(default='')
+    dymnost = CharField(default='')
+    zharostoykost = CharField(default='')
+    stoykost_vkusa = CharField(default='')
+    sort_tabaka = CharField(default='')
+    taste_type = CharField(default='')
+    svezhest = CharField(default='')
+    sostav = CharField(default='')
+    upakovka = CharField(default='')
+    temp_hraneniya = CharField(default='')
+    srok_godnosti = CharField(default='')
+    english_name = CharField(default='')
 
 
 class TabacoLinksInShops(BaseModel):
