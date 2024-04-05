@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from peewee import Model, CharField, ForeignKeyField, PostgresqlDatabase
 
 load_dotenv()
-print(os.environ.get('POSTGRES_DB_NAME'))
+
 db = PostgresqlDatabase(
     database=os.environ.get('POSTGRES_DB_NAME'),
     user=os.environ.get('POSTGRES_LOGIN'),
