@@ -1,6 +1,7 @@
 from time import sleep
 
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from requests import Session
 from tqdm import tqdm
 
@@ -159,6 +160,7 @@ def parse_url(url: str):
 
 
 if __name__ == "__main__":
+    load_dotenv()
     initialize_db()
     parse_url(base_url)
     db.close()

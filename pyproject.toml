@@ -13,6 +13,7 @@ requests = "^2.31.0"
 tqdm = "^4.66.2"
 peewee = "^3.17.1"
 python-dotenv = "^1.0.1"
+psycopg2-binary = "^2.9.9"
 
 
 [build-system]

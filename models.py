@@ -1,16 +1,17 @@
 import os
 
-from peewee import SqliteDatabase, Model, CharField, ForeignKeyField, MySQLDatabase
+from dotenv import load_dotenv
+from peewee import Model, CharField, ForeignKeyField, PostgresqlDatabase
 
-db = SqliteDatabase("tabaco_shops.sqlite", pragmas={'foreign_keys': 1})
+load_dotenv()
 
-# db = MySQLDatabase(
-#     host=os.environ.get('MYSQL_URL'),
-#     user=os.environ.get('MYSQL_USER'),
-#     password=os.environ.get('MYSQL_PASSWORD'),
-#     database=os.environ.get('MYSQL_DB_NAME'),
-#     port=os.environ.get('MYSQL_PORT'),
-# )
+db = PostgresqlDatabase(
+    database=os.environ.get('POSTGRES_DB_NAME'),
+    user=os.environ.get('POSTGRES_LOGIN'),
+    password=os.environ.get('POSTGRES_PASSWORD'),
+    host=os.environ.get('POSTGRES_HOST'),
+    port=os.environ.get('POSTGRES_PORT')
+)
 
 
 class BaseModel(Model):
