@@ -66,28 +66,32 @@ def process_tabaco(tabaco_link: TabacoLinksInShops):
     shop_product = parser.find("div", {"class": "shop-product js_shop"})
     shop_product_detail = shop_product.find("div", {"class": "shop-product__details"})
     details = dict()
-    for detail in shop_product_detail.find("ul", {"class": "shop-product__properties"}).find_all("li", {
-        "class": "shop-product__property"}):
-        details[detail.text.split(":")[0]] = detail.text.split(":")[1].strip()
-    tabaco = tabaco_link.tabaco
-    Tabaco.update(
-        country="" if details.get("Страна") is None else details.get("Страна"),
-        taste="" if details.get("Вкус табака") is None else details.get("Вкус табака"),
-        weight="" if details.get("Вес табака") is None else details.get("Вес табака"),
-        krepost="" if details.get("Крепость табака") is None else details.get("Крепость табака"),
-        cenovoy_segment="" if details.get("Ценовой сегмент табака") is None else details.get("Ценовой сегмент табака"),
-        dymnost="" if details.get("Дымность") is None else details.get("Дымность"),
-        zharostoykost="" if details.get("Жаростойкость") is None else details.get("Жаростойкость"),
-        stoykost_vkusa="" if details.get("Стойкость вкуса") is None else details.get("Стойкость вкуса"),
-        sort_tabaka="" if details.get("Сорт табака") is None else details.get("Сорт табака"),
-        taste_type="" if details.get("Тип вкуса") is None else details.get("Тип вкуса"),
-        svezhest="" if details.get("Свежесть") is None else details.get("Свежесть"),
-        sostav="" if details.get("Упаковка") is None else details.get("Упаковка"),
-        upakovka="" if details.get("Состав") is None else details.get("Состав"),
-        temp_hraneniya="" if details.get("Температура хранения") is None else details.get("Температура хранения"),
-        srok_godnosti="" if details.get("Срок хранения") is None else details.get("Срок хранения"),
-        english_name="" if details.get("Наименование англ.") is None else details.get("Наименование англ."),
-    ).where(Tabaco.id == tabaco.id).execute()
+    try:
+        for detail in shop_product_detail.find("ul", {"class": "shop-product__properties"}).find_all("li", {
+            "class": "shop-product__property"}):
+            details[detail.text.split(":")[0]] = detail.text.split(":")[1].strip()
+        tabaco = tabaco_link.tabaco
+        Tabaco.update(
+            country="" if details.get("Страна") is None else details.get("Страна"),
+            taste="" if details.get("Вкус табака") is None else details.get("Вкус табака"),
+            weight="" if details.get("Вес табака") is None else details.get("Вес табака"),
+            krepost="" if details.get("Крепость табака") is None else details.get("Крепость табака"),
+            cenovoy_segment="" if details.get("Ценовой сегмент табака") is None else details.get(
+                "Ценовой сегмент табака"),
+            dymnost="" if details.get("Дымность") is None else details.get("Дымность"),
+            zharostoykost="" if details.get("Жаростойкость") is None else details.get("Жаростойкость"),
+            stoykost_vkusa="" if details.get("Стойкость вкуса") is None else details.get("Стойкость вкуса"),
+            sort_tabaka="" if details.get("Сорт табака") is None else details.get("Сорт табака"),
+            taste_type="" if details.get("Тип вкуса") is None else details.get("Тип вкуса"),
+            svezhest="" if details.get("Свежесть") is None else details.get("Свежесть"),
+            sostav="" if details.get("Упаковка") is None else details.get("Упаковка"),
+            upakovka="" if details.get("Состав") is None else details.get("Состав"),
+            temp_hraneniya="" if details.get("Температура хранения") is None else details.get("Температура хранения"),
+            srok_godnosti="" if details.get("Срок хранения") is None else details.get("Срок хранения"),
+            english_name="" if details.get("Наименование англ.") is None else details.get("Наименование англ."),
+        ).where(Tabaco.id == tabaco.id).execute()
+    except:
+        ...
 
 
 def process_brand(shop: Shop, brand: TabacoBrand, brand_link: str):
