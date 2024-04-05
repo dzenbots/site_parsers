@@ -2,15 +2,15 @@ import os
 
 from peewee import SqliteDatabase, Model, CharField, ForeignKeyField, MySQLDatabase
 
-# db = SqliteDatabase("tabaco_shops.sqlite", pragmas={'foreign_keys': 1})
+db = SqliteDatabase("tabaco_shops.sqlite", pragmas={'foreign_keys': 1})
 
-db = MySQLDatabase(
-    host=os.environ.get('MYSQL_URL'),
-    user=os.environ.get('MYSQL_USER'),
-    password=os.environ.get('MYSQL_PASSWORD'),
-    database=os.environ.get('MYSQL_DB_NAME'),
-    port=os.environ.get('MYSQL_PORT'),
-)
+# db = MySQLDatabase(
+#     host=os.environ.get('MYSQL_URL'),
+#     user=os.environ.get('MYSQL_USER'),
+#     password=os.environ.get('MYSQL_PASSWORD'),
+#     database=os.environ.get('MYSQL_DB_NAME'),
+#     port=os.environ.get('MYSQL_PORT'),
+# )
 
 
 class BaseModel(Model):
