@@ -3,6 +3,13 @@ name: test
 on:
   workflow_dispatch:
 
+env:
+  POSTGRES_DB_NAME: ${{ secrets.POSTGRES_DB_NAME }}
+  POSTGRES_LOGIN: ${{ secrets.POSTGRES_LOGIN }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+  POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+
 jobs:
   Test_Run:
     runs-on: ubuntu-latest
