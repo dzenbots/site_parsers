@@ -116,10 +116,9 @@ def process_brand(shop: Shop, brand: TabacoBrand, brand_link: str):
         last_page_number = 0
     tabacos_links += get_items_from_page(shop, brand, brand_link)
     for i in range(2, last_page_number + 1):
-        sleep(0.5)
         tabacos_links += get_items_from_page(shop, brand, brand_link + f"page{i}/")
     for tabaco_link in tabacos_links:
-        sleep(0.5)
+        sleep(1)
         process_tabaco(tabaco_link)
 
 
