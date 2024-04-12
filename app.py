@@ -1,7 +1,3 @@
-import os
-
-from dotenv import load_dotenv
-
 import smolandshop
 from models import initialize_db, db
 

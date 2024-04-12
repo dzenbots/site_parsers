@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from peewee import Model, CharField, ForeignKeyField, PostgresqlDatabase
+from peewee import Model, CharField, ForeignKeyField, PostgresqlDatabase, SqliteDatabase
 
 load_dotenv()
 
@@ -12,6 +12,8 @@ db = PostgresqlDatabase(
     host=os.environ.get('POSTGRES_HOST'),
     port=os.environ.get('POSTGRES_PORT')
 )
+
+# db = SqliteDatabase('tabacos.db')
 
 
 class BaseModel(Model):

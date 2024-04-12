@@ -43,7 +43,8 @@ def get_items_from_page(shop: Shop, brand: TabacoBrand, link: str) -> list[Tabac
             shop_item = item.find("div", {"class": "shop-item-product__name"}).find("a")
         except Exception as e:
             raise e
-        item_name = shop_item.text
+        item_name = ''.join(
+            item for item in ' '.join(shop_item.text[:shop_item.text.rfind('г')].strip().split(' ')[:-1]))
         tabaco, created = Tabaco.get_or_create(
             tabaco_name=item_name,
             tabaco_brand=brand
@@ -54,6 +55,7 @@ def get_items_from_page(shop: Shop, brand: TabacoBrand, link: str) -> list[Tabac
             link=shop_item['href']
         )
         result.append(tabaco_link_in_shop)
+        # print(f"\'{item_name}\'")
         # print(f"Название: {item_name}, Ссылка: {shop_item['href']}")
     return result
 
@@ -113,13 +115,12 @@ def process_brand(shop: Shop, brand: TabacoBrand, brand_link: str):
     except:
         last_page_number = 0
     tabacos_links += get_items_from_page(shop, brand, brand_link)
-    sleep(1)
     for i in range(2, last_page_number + 1):
-        # sleep(1)
+        sleep(0.5)
         tabacos_links += get_items_from_page(shop, brand, brand_link + f"page{i}/")
     for tabaco_link in tabacos_links:
+        sleep(0.5)
         process_tabaco(tabaco_link)
-        # sleep(1)
 
 
 def parse_url(url: str):
@@ -160,7 +161,7 @@ def parse_url(url: str):
 
 
 if __name__ == "__main__":
-    load_dotenv()
+    # load_dotenv()
     initialize_db()
     parse_url(base_url)
     db.close()
