@@ -47,7 +47,7 @@ class SmolandshopParser:
                 return
             for category in shop_item_categories:
                 try:
-                    shopcategory, created = ShopItemCategory.get_or_create(
+                    ShopItemCategory.get_or_create(
                         category_name=category.find('a').text,
                         category_link=category.find('a')['href'],
                         shop=shop
@@ -76,7 +76,7 @@ class SmolandshopParser:
                 print(f"Unable to get brands from {category.category_link}")
                 return
             for brand in brands:
-                new_brand, created = ShopItemCategoryBrand.get_or_create(
+                ShopItemCategoryBrand.get_or_create(
                     brand_name=brand.find(name='a').text,
                     brand_link=brand.find(name='a')['href'],
                     category=category
@@ -125,7 +125,7 @@ class SmolandshopParser:
                         'class': 'shop-item-product__name'
                     }
                 ).find(name='a')
-                new_item, created = BrandItem.get_or_create(
+                BrandItem.get_or_create(
                     brand=brand,
                     item_link=details['href'],
                     brand_item_name=details.text
