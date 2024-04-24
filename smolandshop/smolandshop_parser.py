@@ -134,7 +134,9 @@ class SmolandshopParser:
 async def main():
     load_dotenv()
     initialize_db()
-    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
+    async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(ssl=False)
+    ) as session:
         await SmolandshopParser().parse_website(session=session)
     close_db()
 
