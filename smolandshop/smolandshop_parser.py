@@ -133,6 +133,8 @@ class SmolandshopParser:
     @staticmethod
     async def parse_products(session: aiohttp.ClientSession, brand: Brand, shop: Shop):
         for product in brand.products:
+            if product.processed:
+                return
             async with session.get(product.product_link) as resp:
                 try:
                     parser = BeautifulSoup(await resp.text(), features="lxml")
@@ -159,6 +161,9 @@ class SmolandshopParser:
                         shop=shop,
                         value=''.join(characteristic.text.split(':')[1:]).strip()
                     )
+                Product.update(
+                    processed=True
+                ).where(Product.id == product.id).execute()
             except:
                 print(
                     f"Unable to parse product {product.type.type_name} {product.brand.brand_name} {product.product_name}")
