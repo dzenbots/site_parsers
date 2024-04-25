@@ -102,6 +102,8 @@ class SmolandshopParser:
             await self.get_items_from_page(brand, i, type_item, session)
         await self.parse_products(session=session, brand=brand, shop=shop)
 
+
+
     async def get_items_from_page(self, brand: Brand, i: int, type_item: Type, session: aiohttp.ClientSession):
         print(brand.brand_link + f'page{i}/')
         async with session.get(brand.brand_link + f'page{i}/') as resp:
