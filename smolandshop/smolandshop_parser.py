@@ -131,7 +131,7 @@ class SmolandshopParser:
             return
 
     @staticmethod
-    async def parse_products(product: Product, session: aiohttp.ClientSession, brand: Brand, shop: Shop):
+    async def parse_products(session: aiohttp.ClientSession, brand: Brand, shop: Shop):
         for product in brand.products:
             async with session.get(product.product_link) as resp:
                 try:
