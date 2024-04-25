@@ -1,6 +1,9 @@
-import smolandshop
-from models import initialize_db, db
+import asyncio
 
-initialize_db()
-smolandshop.parse_url(smolandshop.base_url)
-db.close()
+from smolandshop.smolandshop_parser import main
+
+# initialize_db()
+# smolandshop.parse_url(smolandshop.base_url)
+# db.close()
+
+asyncio.run(main())
