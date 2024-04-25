@@ -89,23 +89,34 @@ class Shop(BaseModel):
     shop_link = CharField(default='')
 
 
-class ShopItemCategory(BaseModel):
-    category_name = CharField(default='')
-    category_link = CharField(default='')
-    shop = ForeignKeyField(Shop, backref='shopitemcategories')
+class Type(BaseModel):
+    type_name = CharField(default='')
+    type_link = CharField(default='')
 
 
-class ShopItemCategoryBrand(BaseModel):
+class Brand(BaseModel):
     brand_name = CharField(default='')
     brand_link = CharField(default='')
-    category = ForeignKeyField(ShopItemCategory, backref='shopitemcategories')
 
 
-class BrandItem(BaseModel):
-    brand = ForeignKeyField(ShopItemCategoryBrand, backref='items')
-    brand_item_name = CharField(default='')
-    item_link = CharField(default='')
+class Product(BaseModel):
+    type = ForeignKeyField(Type, backref='products')
+    brand = ForeignKeyField(Brand, backref='products')
+    product_name = CharField(default='')
+    product_link = CharField(default='')
     processed = BooleanField(default=False)
+    picture_link = CharField(default='')
+
+
+class Characteristic(BaseModel):
+    characteristic_name = CharField(default='')
+
+
+class Svod(BaseModel):
+    product = ForeignKeyField(Product, backref='characteristics')
+    characteristic = ForeignKeyField(Characteristic, backref='products')
+    shop = ForeignKeyField(Shop, backref='products')
+    value = CharField(default='')
 
 
 def initialize_db():
@@ -113,9 +124,11 @@ def initialize_db():
     db.create_tables(
         [
             Shop,
-            ShopItemCategory,
-            ShopItemCategoryBrand,
-            BrandItem,
+            Type,
+            Brand,
+            Product,
+            Characteristic,
+            Svod
         ],
         safe=True
     )

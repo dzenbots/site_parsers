@@ -4,7 +4,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
-from models import initialize_db, close_db, Shop, ShopItemCategory, ShopItemCategoryBrand, BrandItem
+from models import initialize_db, close_db, Shop, Type, Brand, Product, Characteristic, Svod
 
 base_url: str = "https://smolandshop.com"
 
@@ -27,10 +27,10 @@ class SmolandshopParser:
                     print(f"Unable to parse {base_url}")
                     return
         except:
-            print(f"Unable to connect to {self.base_url}")
+            print(f"Unable to connect to {base_url}")
             return
         try:
-            shop_item_categories = parser.find(
+            types = parser.find(
                 name="nav",
                 attrs={
                     'class': 'navigation-block__menu navigation'
@@ -44,24 +44,23 @@ class SmolandshopParser:
         except:
             print(f"Unable to find shop item categories in {base_url}")
             return
-        for category in shop_item_categories:
+        for type_item in types:
             try:
-                ShopItemCategory.get_or_create(
-                    category_name=category.find('a').text,
-                    category_link=category.find('a')['href'],
-                    shop=shop
+                Type.get_or_create(
+                    type_name=type_item.find('a').text,
+                    type_link=type_item.find('a')['href']
                 )
             except:
                 print(f"Unable to parse category")
-        await self.process_categories(session=session)
+        await self.process_categories(session=session, shop=shop)
 
-    async def process_categories(self, session: aiohttp.ClientSession):
-        for category in ShopItemCategory.select():
-            async with session.get(category.category_link) as resp:
+    async def process_categories(self, session: aiohttp.ClientSession, shop: Shop):
+        for type_item in Type.select():
+            async with session.get(type_item.type_link) as resp:
                 try:
                     parser = BeautifulSoup(await resp.text(), features="lxml")
                 except:
-                    print(f"Unable to get brands from {category.category_link}")
+                    print(f"Unable to get brands from {type_item.type_link}")
                     return
             try:
                 brands = parser.find(name='div', attrs={'class': 'shop-block-categories'}).find_all(
@@ -71,39 +70,39 @@ class SmolandshopParser:
                     }
                 )
             except:
-                print(f"Unable to get brands from {category.category_link}")
+                print(f"Unable to get brands from {type_item.type_link}")
                 return
             for brand in brands:
-                ShopItemCategoryBrand.get_or_create(
+                brand_item, created = Brand.get_or_create(
                     brand_name=brand.find(name='a').text,
-                    brand_link=brand.find(name='a')['href'],
-                    category=category
+                    brand_link=brand.find(name='a')['href']
                 )
-        await self.proccess_brands(session=session)
+                await self.process_brand(type_item=type_item, brand=brand_item, session=session, shop=shop)
+        # await self.parse_products(session=session)
 
-    async def proccess_brands(self, session: aiohttp.ClientSession):
-        for brand in ShopItemCategoryBrand.select():
-            async with session.get(brand.brand_link) as resp:
-                try:
-                    parser = BeautifulSoup(await resp.text(), features="lxml")
-                except:
-                    print(f"Unable to parse brand {brand.brand_name}")
-                    return
+    async def process_brand(self, type_item: Type, brand: Brand, session: aiohttp.ClientSession, shop: Shop):
+        async with session.get(brand.brand_link) as resp:
             try:
-                pages = parser.find("ul", {"class": "pagination paginator"})
-                last_page = pages.find_all("li")[-2]
-                last_page_text = last_page.find("a").text
-                if last_page_text == "...":
-                    last_page_number = int(last_page.find("a")["title"].split(" ")[-1])
-                else:
-                    last_page_number = int(last_page_text)
+                parser = BeautifulSoup(await resp.text(), features="lxml")
             except:
-                last_page_number = 0
-            for i in range(1, last_page_number + 1):
-                await asyncio.sleep(1)
-                await self.get_items_from_page(brand, i, session)
+                print(f"Unable to parse brand {brand.brand_name}")
+                return
+        try:
+            pages = parser.find("ul", {"class": "pagination paginator"})
+            last_page = pages.find_all("li")[-2]
+            last_page_text = last_page.find("a").text
+            if last_page_text == "...":
+                last_page_number = int(last_page.find("a")["title"].split(" ")[-1])
+            else:
+                last_page_number = int(last_page_text)
+        except:
+            last_page_number = 0
+        for i in range(1, last_page_number + 1):
+            await asyncio.sleep(1)
+            await self.get_items_from_page(brand, i, type_item, session)
+        await self.parse_products(session=session, brand=brand, shop=shop)
 
-    async def get_items_from_page(self, brand: ShopItemCategoryBrand, i: int, session: aiohttp.ClientSession):
+    async def get_items_from_page(self, brand: Brand, i: int, type_item: Type, session: aiohttp.ClientSession):
         print(brand.brand_link + f'page{i}/')
         async with session.get(brand.brand_link + f'page{i}/') as resp:
             try:
@@ -111,6 +110,7 @@ class SmolandshopParser:
             except:
                 print(f"Unable to parse page {i} of brand {brand.brand_name}")
                 return
+
         try:
             products = parser.find(name='ul', attrs={'class': 'shop-list-products row'}).find_all(name='li', attrs={
                 'class': 'shop-item-product col-6 col-sm-6 col-md-4 js_shop'})
@@ -121,15 +121,44 @@ class SmolandshopParser:
                         'class': 'shop-item-product__name'
                     }
                 ).find(name='a')
-                BrandItem.get_or_create(
+                Product.get_or_create(
+                    type=type_item,
                     brand=brand,
-                    item_link=details['href'],
-                    brand_item_name=details.text
+                    product_link=details['href'],
+                    product_name=''.join(
+                        item for item in ' '.join(details.text[:details.text.rfind('г')].strip().split(' ')[:-1]))
                 )
         except:
             print(f"Unable to parse page {i} of brand {brand.brand_name}")
             return
 
+    async def parse_products(self, session: aiohttp.ClientSession, brand: Brand, shop: Shop):
+        for product in brand.products:
+            async with session.get(product.product_link) as resp:
+                try:
+                    parser = BeautifulSoup(await resp.text(), features="lxml")
+                except:
+                    print(f"Unable to parse product {product.type.type_name} {product.brand.brand_name} {product.product_name}")
+                    return
+            try:
+                Product.update(
+                    picture_link=parser.find(name='div', attrs={'class': 'shop-product js_shop'}).find(name='img')['src']
+                ).where(Product.id == product.id).execute()
+                product_info = parser.find(name='div', attrs={'class': 'shop-product__details col-12 col-md-6 col-lg-8 col-xl-6'})
+                characteristics = product_info.find(name='ul', attrs={'class': 'shop-product__properties'}).find_all(name='li', attrs={'class': 'shop-product__property'})
+                for characteristic in characteristics:
+                    characteristic_item, created = Characteristic.get_or_create(
+                        characteristic_name=characteristic.text.split(':')[0].strip()
+                    )
+                    Svod.get_or_create(
+                        product=product,
+                        characteristic=characteristic_item,
+                        shop=shop,
+                        value=''.join(characteristic.text.split(':')[1:]).strip()
+                    )
+            except:
+                print(f"Unable to parse product {product.type.type_name} {product.brand.brand_name} {product.product_name}")
+                return
 
 async def main():
     load_dotenv()
