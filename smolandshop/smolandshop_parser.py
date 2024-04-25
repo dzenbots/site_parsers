@@ -52,9 +52,9 @@ class SmolandshopParser:
                 )
             except:
                 print(f"Unable to parse category")
-        await self.process_categories(session=session, shop=shop)
+        await self.process_types(session=session, shop=shop)
 
-    async def process_categories(self, session: aiohttp.ClientSession, shop: Shop):
+    async def process_types(self, session: aiohttp.ClientSession, shop: Shop):
         for type_item in Type.select():
             async with session.get(type_item.type_link) as resp:
                 try:
@@ -78,7 +78,7 @@ class SmolandshopParser:
                     brand_link=brand.find(name='a')['href']
                 )
                 await self.process_brand(type_item=type_item, brand=brand_item, session=session, shop=shop)
-        # await self.parse_products(session=session)
+        await self.parse_products(session=session)
 
     async def process_brand(self, type_item: Type, brand: Brand, session: aiohttp.ClientSession, shop: Shop):
         async with session.get(brand.brand_link) as resp:
@@ -98,7 +98,6 @@ class SmolandshopParser:
         except:
             last_page_number = 0
         for i in range(1, last_page_number + 1):
-            await asyncio.sleep(1)
             await self.get_items_from_page(brand, i, type_item, session)
         await self.parse_products(session=session, brand=brand, shop=shop)
 
@@ -156,9 +155,13 @@ class SmolandshopParser:
                         shop=shop,
                         value=''.join(characteristic.text.split(':')[1:]).strip()
                     )
+                Product.update(
+                    processed=True
+                ).where(Product.id == product.id).execute()
             except:
                 print(f"Unable to parse product {product.type.type_name} {product.brand.brand_name} {product.product_name}")
                 return
+
 
 async def main():
     load_dotenv()
