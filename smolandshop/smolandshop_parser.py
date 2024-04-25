@@ -80,6 +80,8 @@ class SmolandshopParser:
                 await self.process_brand(type_item=type_item, brand=brand_item, session=session, shop=shop)
         # await self.parse_products(session=session)
 
+
+
     async def process_brand(self, type_item: Type, brand: Brand, session: aiohttp.ClientSession, shop: Shop):
         async with session.get(brand.brand_link) as resp:
             try:
