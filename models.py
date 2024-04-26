@@ -5,13 +5,13 @@ from peewee import Model, CharField, ForeignKeyField, PostgresqlDatabase, Sqlite
 
 load_dotenv()
 
-db = PostgresqlDatabase(
-    database=os.environ.get('POSTGRES_DB_NAME'),
-    user=os.environ.get('POSTGRES_LOGIN'),
-    password=os.environ.get('POSTGRES_PASSWORD'),
-    host=os.environ.get('POSTGRES_HOST'),
-    port=os.environ.get('POSTGRES_PORT')
-)
+# db = PostgresqlDatabase(
+#     database=os.environ.get('POSTGRES_DB_NAME'),
+#     user=os.environ.get('POSTGRES_LOGIN'),
+#     password=os.environ.get('POSTGRES_PASSWORD'),
+#     host=os.environ.get('POSTGRES_HOST'),
+#     port=os.environ.get('POSTGRES_PORT')
+# )
 #
 # # db = SqliteDatabase('tabacos.db')
 #
@@ -76,7 +76,7 @@ db = PostgresqlDatabase(
 #     )
 
 
-# db = SqliteDatabase('tabacos.db')
+db = SqliteDatabase('tabacos.db')
 
 
 class BaseModel(Model):
