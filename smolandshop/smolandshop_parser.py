@@ -78,7 +78,8 @@ class SmolandshopParser:
                     brand_link=brand.find(name='a')['href']
                 )
                 await self.process_brand(type_item=type_item, brand=brand_item, session=session, shop=shop)
-                await self.parse_products(session=session, brand=brand_item, shop=shop)
+                products = brand_item.products
+                await self.parse_products(session=session, products=products, shop=shop)
 
     async def process_brand(self, type_item: Type, brand: Brand, session: aiohttp.ClientSession, shop: Shop):
         async with session.get(brand.brand_link) as resp:
@@ -131,8 +132,8 @@ class SmolandshopParser:
             return
 
     @staticmethod
-    async def parse_products(session: aiohttp.ClientSession, brand: Brand, shop: Shop):
-        for product in brand.products:
+    async def parse_products(session: aiohttp.ClientSession, products, shop: Shop):
+        for product in products:
             if product.processed:
                 return
             async with session.get(product.product_link) as resp:
@@ -151,23 +152,43 @@ class SmolandshopParser:
                                            attrs={'class': 'shop-product__details col-12 col-md-6 col-lg-8 col-xl-6'})
                 characteristics = product_info.find(name='ul', attrs={'class': 'shop-product__properties'}).find_all(
                     name='li', attrs={'class': 'shop-product__property'})
-                for characteristic in characteristics:
-                    characteristic_item, created = Characteristic.get_or_create(
-                        characteristic_name=characteristic.text.split(':')[0].strip()
-                    )
-                    Svod.get_or_create(
-                        product=product,
-                        characteristic=characteristic_item,
-                        shop=shop,
-                        value=''.join(characteristic.text.split(':')[1:]).strip()
-                    )
-                Product.update(
-                    processed=True
-                ).where(Product.id == product.id).execute()
             except:
                 print(
                     f"Unable to parse product {product.type.type_name} {product.brand.brand_name} {product.product_name}")
+                Product.update(
+                    processed=True
+                ).where(Product.id == product.id).execute()
                 return
+            for characteristic in characteristics:
+                characteristic_item, created = Characteristic.get_or_create(
+                    characteristic_name=characteristic.text.split(':')[0].strip()
+                )
+                Svod.get_or_create(
+                    product=product,
+                    characteristic=characteristic_item,
+                    shop=shop,
+                    value=''.join(characteristic.text.split(':')[1:]).strip()
+                )
+
+
+    async def make_final_check(self, session: aiohttp.ClientSession):
+
+        while True:
+            products = Product.select(Product).where(Product.processed == False)
+            if products.count() < 1:
+                break
+            print(f"Products for proccess is {products.count()}")
+            await self.parse_products(session=session, products=products, shop=Shop.get(shop_name="Smolandshop"))
+
+
+async def finalize():
+    load_dotenv()
+    initialize_db()
+    async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(ssl=False)
+    ) as session:
+        await SmolandshopParser().make_final_check(session=session)
+    close_db()
 
 
 async def main():
@@ -181,4 +202,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    # asyncio.run(main())
+    asyncio.run(finalize())
